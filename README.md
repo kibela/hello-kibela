@@ -2,6 +2,10 @@
 
 This is a sample project to call [Kibela](https://kibe.la/) Web API.
 
+## Prerequisites
+
+NodeJS v10 or greater.
+
 ## Setup
 
 ```shell-session
@@ -11,7 +15,7 @@ npm install
 # Configure KIBELA_TEAM and KIBELA_TOKEN
 code .env
 
-# Run the simple script
+# Run a simple script
 npx ts-node hello-kibela.ts
 ```
 
