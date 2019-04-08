@@ -21,13 +21,13 @@ const variables = {};
 (async () => {
   const response = await fetch(API_ENDPOINT,
     {
-      method: "POST",
+      method: "POST", // [required]
       redirect: "follow",
       headers: {
-        "Authorization": `Bearer ${TOKEN}`,
-        "User-Agent": USER_AGENT,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
+        "Authorization": `Bearer ${TOKEN}`, // [required]
+        "Content-Type": "application/json", // [required]
+        "Accept": "application/json", // [required]
+        "User-Agent": USER_AGENT, // [recommended]
       },
       body: JSON.stringify({ query, variables }),
   });
