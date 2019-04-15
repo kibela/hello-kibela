@@ -1,5 +1,5 @@
 import "dotenv/config"; // to load .env
-import fetch from "isomorphic-fetch";
+import fetch from "node-fetch";
 import { name, version } from "./package.json";
 
 const TEAM = process.env.KIBELA_TEAM;
