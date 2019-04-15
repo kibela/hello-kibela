@@ -1,12 +1,11 @@
-import * as path from "path";
-
 import "dotenv/config"; // to load .env
 import fetch from "isomorphic-fetch";
+import { name, version } from "./package.json";
 
 const TEAM = process.env.KIBELA_TEAM;
 const TOKEN = process.env.KIBELA_TOKEN;
 const API_ENDPOINT = `https://${TEAM}.kibe.la/api/v1`;
-const USER_AGENT = `${path.basename(__dirname)}/1.0`;
+const USER_AGENT = `${name}/${version}`;
 
 const query = `
 query HelloKibela {
