@@ -38,7 +38,8 @@ async function parseBody(response: any): Promise<object> {
       headers: {
         "Authorization": `Bearer ${TOKEN}`, // [required]
         "Content-Type": "application/x-msgpack", // [required]
-        "Accept": "application/x-msgpack", // [required]
+        // `application/json` is required as a secondary type
+        "Accept": "application/x-msgpack, application/json", // [required]
         "User-Agent": USER_AGENT, // [recommended]
       },
       body: msgpack.encode({ query, variables }),
@@ -52,5 +53,6 @@ async function parseBody(response: any): Promise<object> {
   }
 
   const bodyData = await parseBody(response);
+  console.log("Content-Type", response.headers.get("content-type"));
   console.log(bodyData);
 })();

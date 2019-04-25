@@ -39,5 +39,6 @@ const variables = {};
 
   const body = await response.json();
 
+  console.log("Content-Type", response.headers.get("content-type"));
   console.log(body);
 })();
