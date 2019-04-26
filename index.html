@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Hello, Kibela Web API via browsers!</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style>
+      main {
+        margin-top: 100px;
+      }
+      form {
+        margin-top: 20px;
+      }
+
+      .error {
+        color: red;
+      }
+    </style>
+    <script>
+      "use strict";
+      const TEAM = "my";
+      const ENDPOINT = `https://${TEAM}.kibe.la/api/v1`; // TODO: prameterize the TEAM
+      const INITIAL_QUERY = "query {\n" + "  currentUser { account }\n" + "}\n";
+
+      function request() {
+        const accessToken = document.querySelector("#accessToken").value;
+        const query = document.querySelector("#query");
+        const output = document.querySelector("#output");
+
+        const body = {
+          query: query.textContent
+        };
+        console.log("request with", body);
+
+        fetch(ENDPOINT, {
+          method: "POST",
+          mode: "cors",
+          redirect: "follow",
+          referrerPolicy: "unsafe-url",
+          headers: {
+            Authorization: "Bearer " + accessToken,
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        })
+          .then(response => {
+            console.log("response.ok", response.ok);
+
+            output.appendChild(document.createElement("br"));
+            const statusLine = document.createElement("pre");
+            statusLine.appendChild(new Text(`${response.status} ${response.statusText}`));
+            output.appendChild(statusLine);
+
+            for (const [name, value] of response.headers.entries()) {
+              const pre = document.createElement("pre");
+              pre.appendChild(new Text(`${name}: ${value}`));
+              output.appendChild(pre);
+            }
+
+            return response.json();
+          })
+          .then(body => {
+            const pre = document.createElement("pre");
+            pre.appendChild(new Text(JSON.stringify(body, undefined, 2)));
+            output.append(pre);
+          })
+          .catch(error => {
+            console.log("error", error);
+            const pre = document.createElement("pre");
+            pre.className = "error";
+            pre.appendChild(new Text(error));
+            output.append(pre);
+          });
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const formElement = document.querySelector("form");
+        formElement.addEventListener("submit", function(event) {
+          event.preventDefault();
+
+          request();
+        });
+
+        const queryElement = document.querySelector("#query");
+        queryElement.appendChild(
+          new Text(localStorage.getItem("query") || INITIAL_QUERY)
+        );
+        queryElement.addEventListener("change", event => {
+          const element = event.currentTarget;
+          localStorage.setItem("query", element.textContent);
+        });
+
+        const accessTokenElement = document.querySelector("#accessToken");
+        accessTokenElement.value = localStorage.getItem("accessToken");
+        accessTokenElement.addEventListener("change", event => {
+          const element = event.currentTarget;
+          localStorage.setItem("accessToken", element.value);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <main>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h1 class="text-center">Hello, Kibela Web API!</h1>
+          </div>
+        </div>
+        <form class="row">
+          <div class="col">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="accessToken" class="input-group-text">
+                  Access Token
+                </label>
+              </div>
+              <input
+                type="password"
+                id="accessToken"
+                size="30"
+                class="form-control"
+              />
+              <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="request" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <textarea id="query" class="form-control" rows="4"></textarea>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col" id="output"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

@@ -22,6 +22,7 @@ const variables = {};
     {
       method: "POST", // [required]
       redirect: "follow",
+      mode: "cors",
       headers: {
         "Authorization": `Bearer ${TOKEN}`, // [required]
         "Content-Type": "application/json", // [required]
