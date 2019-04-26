@@ -8,6 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "start": "npx node-static",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

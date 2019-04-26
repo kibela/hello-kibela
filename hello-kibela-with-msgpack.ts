@@ -34,6 +34,7 @@ async function parseBody(response: any): Promise<object> {
   const response = await fetch(API_ENDPOINT,
     {
       method: "POST", // [required]
+      mode: "cors",
       redirect: "follow",
       headers: {
         "Authorization": `Bearer ${TOKEN}`, // [required]
