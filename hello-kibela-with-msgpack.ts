@@ -1,7 +1,7 @@
 import util from "util";
 import "dotenv/config"; // to load .env
 import fetch from "node-fetch";
-import msgpack from "msgpack-lite";
+import * as msgpack from "@msgpack/msgpack";
 import { name, version } from "./package.json";
 
 const TEAM = process.env.KIBELA_TEAM;
@@ -22,7 +22,7 @@ const variables = {};
 async function parseBody(response: any): Promise<object> {
   if (response.headers.get('Content-Type').includes("msgpack")) {
     const body = await response.buffer();
-    return msgpack.decode(body);
+    return msgpack.decode(body) as object;
   } else {
   // the endpoint may return JSON even if `accept: application/x-msgpack` is set.
     const body = await response.text();
