@@ -12,6 +12,14 @@ query HelloKibela {
   currentUser {
     account
   }
+  notes(first: 10, orderBy: {field: CONTENT_UPDATED_AT, direction: DESC}) {
+      {
+    edges {
+      node {
+        title
+      }
+    }
+  }
 }
 `;
 

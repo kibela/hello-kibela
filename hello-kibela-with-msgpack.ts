@@ -14,6 +14,14 @@ query HelloKibela {
   currentUser {
     account
   }
+
+  notes(first: 10, orderBy: {field: CONTENT_UPDATED_AT, direction: DESC}) {
+    edges {
+      node {
+        title
+      }
+    }
+  }
 }
 `;
 
@@ -21,8 +29,8 @@ const variables = {};
 
 async function parseBody(response: any): Promise<object> {
   if (response.headers.get('Content-Type').includes("msgpack")) {
-    // fetch-node's response.body is AsyncIterable
-    // it's not a WHATWG fetch's spec
+    // Use async decoder for async iterable.
+    // Note that both node-fetch and WHATWG fetch's body has @@asyncIterator (i.e. `AsyncIterable`).
     const object = await msgpack.decodeAsync(response.body);
     return object as object;
 
@@ -61,5 +69,5 @@ async function parseBody(response: any): Promise<object> {
 
   const bodyData = await parseBody(response);
   console.log("Content-Type", response.headers.get("content-type"));
-  console.log(bodyData);
+  console.dir(bodyData, { depth: 100 });
 })();
