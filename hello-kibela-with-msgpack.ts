@@ -1,6 +1,7 @@
+import "core-js"; // for nodejs v10
 import util from "util";
 import "dotenv/config"; // to load .env
-import fetch from "node-fetch";
+import nodeFetch from "node-fetch";
 import * as msgpack from "@msgpack/msgpack";
 import { name, version } from "./package.json";
 
@@ -8,6 +9,8 @@ const TEAM = process.env.KIBELA_TEAM;
 const TOKEN = process.env.KIBELA_TOKEN;
 const API_ENDPOINT = `https://${TEAM}.kibe.la/api/v1`;
 const USER_AGENT = `${name}/${version}`;
+
+globalThis.fetch = nodeFetch; // polyfill
 
 const query = `
 query HelloKibela {
@@ -27,43 +30,81 @@ query HelloKibela {
 
 const variables = {};
 
-async function parseBody(response: any): Promise<object> {
-  if (response.headers.get('Content-Type').includes("msgpack")) {
+function isAsyncIterable<T>(stream: object): stream is AsyncIterable<T> {
+  return !!stream[Symbol.asyncIterator];
+}
+
+async function* asyncIterableFromStream(
+  stream: ReadableStream<Uint8Array> | AsyncIterable<Uint8Array> | null
+) {
+  if (stream == null) {
+    return;
+  }
+
+  // node-fetch
+  if (isAsyncIterable(stream)) {
+    for await (const buffer of stream) {
+      yield buffer;
+    }
+    return;
+  }
+
+  // WHATWG fetch
+  const reader = stream.getReader();
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+async function parseBody(response: Response): Promise<object> {
+  if (response.headers.get("Content-Type")!.includes("msgpack")) {
     // Use async decoder for async iterable.
-    // Note that both node-fetch and WHATWG fetch's body has @@asyncIterator (i.e. `AsyncIterable`).
-    const object = await msgpack.decodeAsync(response.body);
+    const object = await msgpack.decodeAsync(
+      asyncIterableFromStream(response.body)
+    );
     return object as object;
 
-    // Syncronous version of decode() is okay:
+    // Syncronous version of decode() is also available:
     // const body = await response.buffer();
     // return msgpack.decode(body) as object;
   } else {
-  // the endpoint may return JSON even if `accept: application/x-msgpack` is set.
+    // the endpoint may return JSON even if `accept: application/x-msgpack` is set.
     const body = await response.text();
     return JSON.parse(body);
   }
 }
 
 (async () => {
-  const response = await fetch(API_ENDPOINT,
-    {
-      method: "POST", // [required]
-      mode: "cors",
-      redirect: "follow",
-      headers: {
-        "Authorization": `Bearer ${TOKEN}`, // [required]
-        "Content-Type": "application/x-msgpack", // [required]
-        // `application/json` is required as a secondary type
-        "Accept": "application/x-msgpack, application/json", // [required]
-        "User-Agent": USER_AGENT, // [recommended]
-      },
-      body: msgpack.encode({ query, variables }),
-    });
+  const response = await fetch(API_ENDPOINT, {
+    method: "POST", // [required]
+    mode: "cors",
+    redirect: "follow",
+    headers: {
+      Authorization: `Bearer ${TOKEN}`, // [required]
+      "Content-Type": "application/x-msgpack", // [required]
+      // `application/json` is required as a secondary type
+      Accept: "application/x-msgpack, application/json", // [required]
+      "User-Agent": USER_AGENT // [recommended]
+    },
+    body: msgpack.encode({ query, variables })
+  });
 
   if (!response.ok) {
     const bodyData = await parseBody(response);
     console.error(
-      `${response.status} ${response.statusText}:\n${util.inspect(bodyData, undefined, 10)}`);
+      `${response.status} ${response.statusText}:\n${util.inspect(
+        bodyData,
+        undefined,
+        10
+      )}`
+    );
     return;
   }
 
