@@ -3,6 +3,9 @@ import util from "util";
 import "dotenv/config"; // to load .env
 import nodeFetch from "node-fetch";
 import * as msgpack from "@msgpack/msgpack";
+import gql from "graphql-tag";
+import { print as printGql } from "graphql/language/printer"
+
 import { name, version } from "./package.json";
 
 const TEAM = process.env.KIBELA_TEAM;
@@ -12,7 +15,8 @@ const USER_AGENT = `${name}/${version}`;
 
 globalThis.fetch = nodeFetch; // polyfill
 
-const query = `
+// `gql` is optional but it tells IDEs that it is GraphQL
+const query = gql`
 query HelloKibela {
   currentUser {
     account
@@ -27,8 +31,6 @@ query HelloKibela {
   }
 }
 `;
-
-const variables = {};
 
 function isAsyncIterable<T>(stream: object): stream is AsyncIterable<T> {
   return !!stream[Symbol.asyncIterator];
@@ -93,7 +95,10 @@ async function parseBody(response: Response): Promise<object> {
       Accept: "application/x-msgpack, application/json", // [required]
       "User-Agent": USER_AGENT // [recommended]
     },
-    body: msgpack.encode({ query, variables })
+    body: msgpack.encode({
+      query: printGql(query),
+      variables: {},
+    })
   });
 
   if (!response.ok) {

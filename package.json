@@ -16,9 +16,12 @@
   "license": "ISC",
   "dependencies": {
     "@msgpack/msgpack": "^1.0.1",
+    "@types/graphql": "^14.2.0",
     "@types/node": "^11.13.10",
     "core-js": "^3.0.1",
     "dotenv": "^7.0.0",
+    "graphql": "^14.3.0",
+    "graphql-tag": "^2.10.1",
     "node-fetch": "^2.5.0",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.5"
