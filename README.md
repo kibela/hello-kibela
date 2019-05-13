@@ -19,8 +19,11 @@ npm install
 # Configure KIBELA_TEAM and KIBELA_TOKEN
 code .env
 
-# Run a simple script
+# Run a "hello" script using JSON
 npx ts-node hello-kibela.ts
+
+# Run a "hello" script using MessagePack
+npx ts-node hello-kibela-with-msgpack.ts
 ```
 
 ## See Also

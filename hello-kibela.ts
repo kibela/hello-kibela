@@ -12,8 +12,8 @@ query HelloKibela {
   currentUser {
     account
   }
+
   notes(first: 10, orderBy: {field: CONTENT_UPDATED_AT, direction: DESC}) {
-      {
     edges {
       node {
         title
@@ -26,28 +26,26 @@ query HelloKibela {
 const variables = {};
 
 (async () => {
-  const response = await fetch(API_ENDPOINT,
-    {
-      method: "POST", // [required]
-      redirect: "follow",
-      mode: "cors",
-      headers: {
-        "Authorization": `Bearer ${TOKEN}`, // [required]
-        "Content-Type": "application/json", // [required]
-        "Accept": "application/json", // [required]
-        "User-Agent": USER_AGENT, // [recommended]
-      },
-      body: JSON.stringify({ query, variables }),
+  const response = await fetch(API_ENDPOINT, {
+    method: "POST", // [required]
+    redirect: "follow",
+    mode: "cors",
+    headers: {
+      Authorization: `Bearer ${TOKEN}`, // [required]
+      "Content-Type": "application/json", // [required]
+      Accept: "application/json", // [required]
+      "User-Agent": USER_AGENT // [recommended]
+    },
+    body: JSON.stringify({ query, variables })
   });
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(
-      `not ok: ${response.statusText}\n${body}`)
+    throw new Error(`not ok: ${response.statusText}\n${body}`);
   }
 
   const body = await response.json();
 
   console.log("Content-Type", response.headers.get("content-type"));
-  console.log(body);
+  console.dir(body, { depth: 100 });
 })();

@@ -1,7 +1,7 @@
 {
-  "name": "hello-kibela.ts",
+  "name": "@kibela/hello-kibela",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple example to call Kibela Web API",
   "private": true,
   "engines": {
     "node": ">= 10"
