@@ -15,7 +15,7 @@
   "author": "Bit Journey, Inc.",
   "license": "ISC",
   "dependencies": {
-    "@msgpack/msgpack": "^0.14.0",
+    "@msgpack/msgpack": "^1.0.1",
     "@types/node": "^11.13.10",
     "core-js": "^3.0.1",
     "dotenv": "^7.0.0",
