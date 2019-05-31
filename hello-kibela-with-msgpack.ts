@@ -32,45 +32,11 @@ query HelloKibela {
 }
 `;
 
-function isAsyncIterable<T>(stream: object): stream is AsyncIterable<T> {
-  return !!stream[Symbol.asyncIterator];
-}
-
-async function* asyncIterableFromStream(
-  stream: ReadableStream<Uint8Array> | AsyncIterable<Uint8Array> | null
-) {
-  if (stream == null) {
-    return;
-  }
-
-  // node-fetch
-  if (isAsyncIterable(stream)) {
-    for await (const buffer of stream) {
-      yield buffer;
-    }
-    return;
-  }
-
-  // WHATWG fetch
-  const reader = stream.getReader();
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) return;
-      yield value;
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
 
 async function parseBody(response: Response): Promise<object> {
   if (response.headers.get("Content-Type")!.includes("msgpack")) {
-    // Use async decoder for async iterable.
-    const object = await msgpack.decodeAsync(
-      asyncIterableFromStream(response.body)
-    );
+    // Use async decoder for response.body
+    const object = await msgpack.decodeAsync(response.body!);
     return object as object;
 
     // Syncronous version of decode() is also available:
