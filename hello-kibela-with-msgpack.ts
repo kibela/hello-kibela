@@ -26,6 +26,7 @@ query HelloKibela {
     edges {
       node {
         title
+        publishedAt
       }
     }
   }

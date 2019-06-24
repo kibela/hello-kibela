@@ -21,6 +21,7 @@ const query = gql`
       edges {
         node {
           title
+          publishedAt
         }
       }
     }
